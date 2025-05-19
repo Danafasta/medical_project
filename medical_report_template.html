@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Медицинский аналитический отчет</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-chart-line"></i> Медицинский аналитический отчет</h1>
+            <p>Дата создания: {{ report_date }}</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="overview"><i class="fas fa-chart-pie"></i> Обзор</button>
+            <button class="tab-btn" data-tab="smoking"><i class="fas fa-smoking"></i> Курение</button>
+            <button class="tab-btn" data-tab="bmi"><i class="fas fa-weight"></i> ИМТ</button>
+            <button class="tab-btn" data-tab="regression"><i class="fas fa-calculator"></i> Анализ</button>
+        </div>
+
+        <!-- Overview Section -->
+        <section id="overview" class="section active">
+            <h2><i class="fas fa-info-circle"></i> Обзор статистики</h2>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3><i class="fas fa-users"></i> Демография</h3>
+                    <p>Всего пациентов: <strong>{{ total_patients }}</strong></p>
+                    <p>Средний возраст: <strong>{{ avg_age }}</strong></p>
+                    <p>Соотношение М/Ж: <strong>{{ gender_ratio }}</strong></p>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-heartbeat"></i> Здоровье</h3>
+                    <p>Курящие: <strong>{{ smoking_percent }}%</strong></p>
+                    <p>Диабет: <strong>{{ diabetes_percent }}%</strong></p>
+                    <p>Средний ИМТ: <strong>{{ avg_bmi }}</strong></p>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-file-medical"></i> Показатели</h3>
+                    <p>Среднее давление: <strong>{{ avg_pressure }}</strong></p>
+                    <p>Высокое давление: <strong>{{ high_pressure_percent }}%</strong></p>
+                    <p>Ожирение: <strong>{{ obesity_percent }}%</strong></p>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-outline toggle-details-btn" data-target="overview-details">
+                    <i class="fas fa-chevron-down"></i> Подробнее
+                </button>
+                <button class="btn" onclick="window.print()">
+                    <i class="fas fa-print"></i> Печать отчета
+                </button>
+            </div>
+
+            <div id="overview-details" class="toggle-content">
+                <div class="chart-container">
+                    <img src="demographics.png" alt="Демографические данные">
+                    <p class="chart-caption">Рисунок 1. Демографическое распределение пациентов</p>
+                </div>
+            </div>
+
+            <div class="section animate__animated animate__fadeIn animate__delay-2s">
+                <h2><i class="fas fa-user-friends"></i> Демографическое распределение</h2>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3><i class="fas fa-venus-mars"></i> Распределение по полу</h3>
+                        <p>Мужчины: <strong>{{ gender_dist.male }}%</strong></p>
+                        <p>Женщины: <strong>{{ gender_dist.female }}%</strong></p>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fas fa-birthday-cake"></i> Возрастные группы</h3>
+                        <p>18-30 лет: <strong>{{ age_dist.age_18_30 }}%</strong></p>
+                        <p>31-45 лет: <strong>{{ age_dist.age_31_45 }}%</strong></p>
+                        <p>46-60 лет: <strong>{{ age_dist.age_46_60 }}%</strong></p>
+                        <p>60+ лет: <strong>{{ age_dist.age_60_plus }}%</strong></p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <img src="demographics.png" alt="Демографическое распределение">
+                    <p class="chart-caption">Рисунок 1. Демографическое распределение пациентов</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Smoking Section -->
+        <section id="smoking" class="section">
+            <h2><i class="fas fa-smoking-ban"></i> Курение и давление</h2>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3><i class="fas fa-smoking"></i> Курящие</h3>
+                    <p>Количество: <strong>{{ smokers_count }}</strong></p>
+                    <p>Среднее давление: <strong>{{ smokers_pressure }}</strong></p>
+                    <p>Высокое давление: <strong>{{ smokers_high_pressure }}%</strong></p>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-ban"></i> Некурящие</h3>
+                    <p>Количество: <strong>{{ non_smokers_count }}</strong></p>
+                    <p>Среднее давление: <strong>{{ non_smokers_pressure }}</strong></p>
+                    <p>Высокое давление: <strong>{{ non_smokers_high_pressure }}%</strong></p>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-chart-bar"></i> Разница</h3>
+                    <p>Разница в давлении: <strong>{{ pressure_diff }}</strong></p>
+                    <p>Относительный риск: <strong>{{ relative_risk }}x</strong></p>
+                    <p>
+                        Стат. значимость:
+                        <span class="badge {% if sig_diff %}badge-danger{% else %}badge-success{% endif %}">
+                            {% if sig_diff %}Значимо{% else %}Незначимо{% endif %}
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn toggle-details-btn" data-target="smoking-charts">
+                    <i class="fas fa-chart-bar"></i> Показать графики
+                </button>
+                <button class="btn btn-outline toggle-details-btn" data-target="smoking-conclusion">
+                    <i class="fas fa-lightbulb"></i> Выводы
+                </button>
+            </div>
+
+            <div id="smoking-charts" class="toggle-content">
+                <div class="chart-container">
+                    <img src="smoking_pressure.png" alt="Сравнение давления у курящих и некурящих" style="max-height: 250px;">
+                    <p class="chart-caption">Рисунок 2. Сравнение артериального давления у курящих и некурящих пациентов</p>
+                </div>
+            </div>
+
+            <div id="smoking-conclusion" class="toggle-content conclusion">
+                <h3><i class="fas fa-lightbulb"></i> Ключевые выводы</h3>
+                <ul>
+                    {% for conclusion in smoking_conclusions %}
+                    <li>{{ conclusion }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+
+        <!-- BMI Section -->
+        <section id="bmi" class="section">
+            <h2><i class="fas fa-weight"></i> Анализ ИМТ</h2>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3><i class="fas fa-male"></i> Мужчины</h3>
+                    <p>Средний ИМТ: <strong>{{ male_avg_bmi }}</strong></p>
+                    <p>Ожирение: <strong>{{ male_obesity }}%</strong></p>
+                    <p>Избыточный вес: <strong>{{ male_overweight }}%</strong></p>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-female"></i> Женщины</h3>
+                    <p>Средний ИМТ: <strong>{{ female_avg_bmi }}</strong></p>
+                    <p>Ожирение: <strong>{{ female_obesity }}%</strong></p>
+                    <p>Избыточный вес: <strong>{{ female_overweight }}%</strong></p>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-chart-line"></i> Возрастные группы</h3>
+                    <p>Наибольший ИМТ: <strong>{{ max_bmi_age_group }}</strong></p>
+                    <p>Наименьший ИМТ: <strong>{{ min_bmi_age_group }}</strong></p>
+                    <p>Корреляция: <strong>{{ age_bmi_correlation }}</strong></p>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn toggle-details-btn" data-target="bmi-charts">
+                    <i class="fas fa-chart-pie"></i> Показать графики
+                </button>
+                <button class="btn btn-outline" onclick="toggleAllBMICharts()">
+                    <i class="fas fa-expand"></i> Все графики
+                </button>
+            </div>
+
+            <div id="bmi-charts" class="toggle-content">
+                <div class="chart-container">
+                    <img src="gender_obesity.png" alt="Гендерные различия ИМТ" style="max-height: 250px;">
+                    <p class="chart-caption">Рисунок 3. Распределение ИМТ по полу</p>
+                </div>
+            </div>
+
+            <div id="bmi-age-chart" class="toggle-content" style="display: none;">
+                <div class="chart-container">
+                    <img src="age_obesity.png" alt="Возрастные различия ИМТ" style="max-height: 250px;">
+                    <p class="chart-caption">Рисунок 4. Распределение ИМТ по возрастным группам</p>
+                </div>
+            </div>
+
+            <div class="conclusion">
+                <h3><i class="fas fa-comment-medical"></i> Интерпретация</h3>
+                <p>{{ age_obesity_result }}</p>
+                <p>Гендерная разница в ожирении: <strong>{{ obesity_diff }}%</strong> (женщины чаще)</p>
+            </div>
+        </section>
+
+        <!-- Regression Section -->
+        <section id="regression" class="section">
+            <h2><i class="fas fa-calculator"></i> Регрессионный анализ</h2>
+
+            {% if regression_success %}
+            <div class="card">
+                <h3><i class="fas fa-project-diagram"></i> Модель давления</h3>
+                <p><strong>Уравнение:</strong> Давление = {{ age_coef }}×Возраст + {{ bmi_coef }}×ИМТ + {{ intercept }}</p>
+                <p><strong>Качество модели (R²):</strong> {{ r_squared }}</p>
+                <p>
+                    <strong>Статистическая значимость:</strong>
+                    <span class="badge {% if r_squared|float > 0.1 %}badge-primary{% else %}badge{% endif %}">
+                        {% if r_squared|float > 0.1 %}Объясняет вариации{% else %}Слабая модель{% endif %}
+                    </span>
+                </p>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn toggle-details-btn" data-target="regression-charts">
+                    <i class="fas fa-chart-line"></i> Графики регрессии
+                </button>
+            </div>
+
+            <div id="regression-charts" class="toggle-content">
+                <div class="chart-container">
+                    <img src="regression_plot.png" alt="График регрессии" style="max-height: 300px;">
+                    <p class="chart-caption">Рисунок 5. Регрессионная модель зависимости давления от возраста и ИМТ</p>
+                </div>
+            </div>
+
+            <div class="conclusion">
+                <h3><i class="fas fa-lightbulb"></i> Интерпретация модели</h3>
+                <p>Модель показывает, что {% if r_squared|float > 0.1 %}оба фактора значимо влияют{% else %}факторы слабо влияют{% endif %} на артериальное давление.</p>
+                <ul>
+                    <li>С увеличением возраста на 1 год давление увеличивается на ~{{ age_coef }} мм рт.ст.</li>
+                    <li>С увеличением ИМТ на 1 единицу давление увеличивается на ~{{ bmi_coef }} мм рт.ст.</li>
+                </ul>
+            </div>
+            {% else %}
+            <div class="card">
+                <h3><i class="fas fa-exclamation-triangle"></i> Ошибка анализа</h3>
+                <p>Не удалось выполнить регрессионный анализ данных.</p>
+                <p>Возможные причины: недостаточно данных или отсутствие значимых корреляций.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <div class="section">
+            <h2><i class="fas fa-file-download"></i> Экспорт данных</h2>
+            <p>Вы можете скачать полный отчет или отдельные данные для дальнейшего анализа.</p>
+
+            <div class="btn-group">
+                <button class="btn"><i class="fas fa-file-pdf"></i> PDF отчет</button>
+                <button class="btn btn-outline"><i class="fas fa-file-csv"></i> CSV данные</button>
+                <button class="btn btn-outline"><i class="fas fa-file-excel"></i> Excel файл</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p><i class="fas fa-laptop-medical"></i> Медицинский аналитический отчет | Сгенерировано автоматически</p>
+            <p class="small" style="margin-top: 10px; font-size: 0.8rem; color: #9AA0A6;">
+                Данные анонимизированы и используются в исследовательских целях
+            </p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
